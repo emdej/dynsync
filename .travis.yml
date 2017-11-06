@@ -1,0 +1,32 @@
+language: python
+
+os:
+  - linux
+
+before_script:
+  - lsb_release -a
+  - ping -c1 localhost
+  - ssh -vv -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o BatchMode=yes -o PasswordAuthentication=no localhost 'echo test'
+  - rsync -aPvv -e 'ssh -vv -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o BatchMode=yes -o PasswordAuthentication=no' /usr/include localhost:/tmp/
+
+python:
+  - 2.7
+
+addons:
+  apt:
+    packages:
+      - rsync
+      - openssh-client
+      - openssh-server
+
+install:
+  - rsync --version
+  - ssh -V
+  - ls -la ${HOME}/.ssh
+  - service ssh status
+  - ssh-keygen -t rsa -N "" -f ${HOME}/.ssh/id_rsa
+  - cat ${HOME}/.ssh/id_rsa.pub >> ${HOME}/.ssh/authorized_keys
+
+script:
+  - pwd
+  - ls

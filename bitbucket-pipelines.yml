@@ -1,0 +1,44 @@
+# This is a sample build configuration for Docker.
+# Check our guides at https://confluence.atlassian.com/x/O1toN for more examples.
+# Only use spaces to indent your .yml configuration.
+# -----
+# You can specify a custom docker image from Docker Hub as your build environment.
+# image: atlassian/default-image:latest
+
+#image: debian:stretch
+#image: python:2.7.13
+#image: python:2.7.14-stretch
+image: emdej/stretch-python2.7-rsync-ssh:latest
+  #run-as-user: 1000
+
+clone:           # the 'clone' section 
+  depth: 1       # the depth, in this case the clone will contain last five commits
+
+caches:
+  - pip
+
+options:
+  docker: true
+  max-time: 2
+
+pipelines:
+  default:
+    - step:
+       script:
+         - service ssh start
+         - rm -rf ~/.bashrc
+         - test/test_simple.sh
+
+#pipelines:
+#  default:
+#    - step:
+#        script: # Modify the commands below to build your repository.
+#          # Set $DOCKER_HUB_USERNAME and $DOCKER_HUB_PASSWORD as environment variables in repository settings
+#          - export IMAGE_NAME=your-Dockerhub-account/your-docker-image-name:$BITBUCKET_COMMIT
+#
+#          # build the Docker image (this will use the Dockerfile in the root of the repo)
+#          - docker build -t $IMAGE_NAME .
+#          # authenticate with the Docker Hub registry
+#          - docker login --username $DOCKER_HUB_USERNAME --password $DOCKER_HUB_PASSWORD
+#          # push the new Docker image to the Docker registry
+#          - docker push $IMAGE_NAME

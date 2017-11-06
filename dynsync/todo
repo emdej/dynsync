@@ -1,0 +1,4 @@
+1. add --remote-python=<path> option
+1a. check if watchdog is available
+2. check if my module is installed before trying to upload script
+2a. check protocol version / version
