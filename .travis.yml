@@ -1,7 +1,8 @@
 language: python
 
-os:
-  - linux
+os: linux
+sudo: required
+dist: trusty
 
 before_script:
   - lsb_release -a
@@ -18,8 +19,9 @@ addons:
       - openssh-server
 
 before_install:
+  - sudo add-apt-repository -r "deb http://archive.ubuntu.com/ubuntu trusty-backports main restricted universe multiverse"
   - sudo apt-get update -q
-  - sudo apt-get install tar
+  - sudo apt-get install tar/trusty-backports
 
 install:
   - rsync --version
