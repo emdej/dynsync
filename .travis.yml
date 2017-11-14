@@ -32,6 +32,11 @@ install:
   - cat ${HOME}/.ssh/id_rsa.pub >> ${HOME}/.ssh/authorized_keys
 
 script:
+  - python -c "import click" || echo "failed"
+  - sudo pip install click watchdog
+  - python -c "import click" || echo "failed"
+  - sudo pip install --user click watchdog
+  - python -c "import click" || echo "failed"
   - tar --version
   - lsb_release -a
   - test/test_simple.sh
