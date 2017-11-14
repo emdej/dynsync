@@ -17,6 +17,10 @@ addons:
       - openssh-client
       - openssh-server
 
+before_install:
+  - sudo apt-get update -q
+  - sudo apt-get install tar
+
 install:
   - rsync --version
   - ssh -V
@@ -27,4 +31,5 @@ install:
 
 script:
   - tar --version
+  - lsb_release -a
   - test/test_simple.sh
