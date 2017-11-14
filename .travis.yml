@@ -6,8 +6,6 @@ os:
 before_script:
   - lsb_release -a
   - ping -c1 localhost
-  - ssh -vv -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o BatchMode=yes -o PasswordAuthentication=no localhost 'echo test'
-  - rsync -aPvv -e 'ssh -vv -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o BatchMode=yes -o PasswordAuthentication=no' /usr/include localhost:/tmp/
 
 python:
   - 2.7
@@ -28,5 +26,4 @@ install:
   - cat ${HOME}/.ssh/id_rsa.pub >> ${HOME}/.ssh/authorized_keys
 
 script:
-  - pwd
-  - ls
+  - test/test_simple.sh
