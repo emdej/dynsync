@@ -1,8 +1,5 @@
 #!/bin/bash
 
-set -e
-set -x
-
 MAINDIR=$(readlink -f $(readlink -f $0 | xargs dirname)/..)
 DYNSYNCDIR=${MAINDIR}/dynsync
 TESTDIR_L=$(mktemp -d)
