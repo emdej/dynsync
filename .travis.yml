@@ -33,7 +33,7 @@ install:
 script:
   - python2 -c "import click" || echo "failed"
   - python2 -c "import click" || echo "failed"
-  - sudo pip2 install --user click watchdog
+  - pip2 install -v --user click watchdog
   - python2 -c "import click" || echo "failed"
   - tar --version
   - lsb_release -a
