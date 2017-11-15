@@ -9,14 +9,14 @@ from watchdog.events import FileSystemEventHandler
 # OSError: inotify watch limit reached
 
 class RSyncEventHandler(FileSystemEventHandler):
-    def __init__(self, local_path, remote_path, tmp, ignores=[]):
+    def __init__(self, local_path, remote_path, local_tmp, remote_tmp, ignores=[]):
         self.ignores = ignores
         self.local_path = local_path
         self.remote_path = remote_path
         self.remote_path_short = remote_path.split(':')[1]
         self.changed_paths = []
-        self.tmp = tmp
-        self.local_tmp = "/tmp"
+        self.local_tmp = local_tmp
+        self.remote_tmp = remote_tmp
         print "initial synchronization in progress..."
         self.rsync()
         print "done."
@@ -43,10 +43,10 @@ class RSyncEventHandler(FileSystemEventHandler):
         if changes:
             local_changes = [''.join(abs_change.split(self.local_path)[1:]) for abs_change in changes]
             local_changes.sort()
-            cmd = "rsync --delete -e 'ssh -o StrictHostKeyChecking=no' -avzP --temp-dir={} --include-from=- {} {}".format(self.tmp, self.local_path, self.remote_path)
+            cmd = "rsync --delete -e 'ssh -o StrictHostKeyChecking=no' -avzP --temp-dir={} --include-from=- {} {}".format(self.remote_tmp, self.local_path, self.remote_path)
         else:
             local_changes = []
-            cmd = "rsync --delete -e 'ssh -o StrictHostKeyChecking=no' -avzP --temp-dir={} {} {}".format(self.tmp, self.local_path, self.remote_path)
+            cmd = "rsync --delete -e 'ssh -o StrictHostKeyChecking=no' -avzP --temp-dir={} {} {}".format(self.remote_tmp, self.local_path, self.remote_path)
         with open(os.devnull, 'w') as DEVNULL:
             try:
                 import shlex
@@ -92,8 +92,9 @@ class RSyncEventHandler(FileSystemEventHandler):
 @click.command()
 @click.argument('local-path')
 @click.argument('remote-path')
-@click.option('--tmp', default='/tmp', help='Dir to store tmp files')
-def main(local_path, remote_path, tmp):
+@click.option('--local-tmp', default='/tmp', help='Local rir to store tmp files (defaults to /tmp)')
+@click.option('--remote-tmp', default='/tmp', help='Remote dir to store tmp files (defaults to /tmp)')
+def main(local_path, remote_path, local_tmp, remote_tmp):
     if subprocess.call(['which', 'rsync']) != 0:
         sys.exit(1)
 
@@ -101,7 +102,7 @@ def main(local_path, remote_path, tmp):
     from remote_start import make_remote_observer
     observed_path = local_path
 
-    event_handler = RSyncEventHandler(local_path, remote_path, tmp)
+    event_handler = RSyncEventHandler(local_path, remote_path, local_tmp, remote_tmp)
     remote_changed_paths = []
 
     def change_consumer(path):
