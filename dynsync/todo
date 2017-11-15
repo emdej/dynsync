@@ -3,3 +3,4 @@
 2. check if my module is installed before trying to upload script
 2a. check protocol version / version
 3. add pytest tests
+4. add setup.py
