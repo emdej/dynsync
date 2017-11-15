@@ -5,8 +5,10 @@ DYNSYNCDIR=${MAINDIR}/dynsync
 TESTDIR_L=$(mktemp -d)
 TESTDIR_R=$(mktemp -d)
 
+set -e
+
 cd ${DYNSYNCDIR}
-python2.7 dynsync.py ${TESTDIR_L}/ localhost:${TESTDIR_R}/ &
+python2.7 dynsync.py ${TESTDIR_L}/ localhost:${TESTDIR_R}/ --remote-username=${USER} &
 PID=$!
 
 function cleanup
@@ -45,6 +47,29 @@ function make_files_in_dirs
     done
 }
 
+function chmod_files
+{
+    chmod a+x ${TESTDIR_L}/d4/f3
+}
+
+function remote_add_files
+{
+    for i in {1..10}
+    do
+        echo "rf$i" > ${TESTDIR_R}/d5/rf${i}
+    done
+}
+
+function remote_move_files
+{
+    mv ${TESTDIR_R}/d5/rf1 ${TESTDIR_R}/d6/rf_1
+}
+
+function remote_remove_dir
+{
+    rm -rf ${TESTDIR_R}/d7
+}
+
 function move_dirs
 {
     mv ${TESTDIR_L}/d1 ${TESTDIR_L}/d_1
@@ -74,7 +99,9 @@ function verify
 {
     ls -l ${TESTDIR_L}
     ls -l ${TESTDIR_R}
+    echo "local:"
     tar --sort=name -cm -f - -C ${TESTDIR_L} . | tar -tv
+    echo "remote:"
     tar --sort=name -cm -f - -C ${TESTDIR_R} . | tar -tv
     SL=$(tar --sort=name -cm -f - -C ${TESTDIR_L} . | sha256sum | cut -d' ' -f1)
     SR=$(tar --sort=name -cm -f - -C ${TESTDIR_R} . | sha256sum | cut -d' ' -f1)
@@ -113,6 +140,22 @@ verify
 
 echo "move files"
 move_files; sleep 2
+verify
+
+echo "chmod files"
+chmod_files; sleep 2
+verify
+
+echo "remote add files"
+remote_add_files; sleep 2
+verify
+
+echo "remote move files"
+remote_move_files; sleep 2
+verify
+
+echo "remote remove dirs"
+remote_remove_dir; sleep 2
 verify
 
 echo "remove files"

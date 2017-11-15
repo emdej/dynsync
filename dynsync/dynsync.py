@@ -94,7 +94,9 @@ class RSyncEventHandler(FileSystemEventHandler):
 @click.argument('remote-path')
 @click.option('--local-tmp', default='/tmp', help='Local rir to store tmp files (defaults to /tmp)')
 @click.option('--remote-tmp', default='/tmp', help='Remote dir to store tmp files (defaults to /tmp)')
-def main(local_path, remote_path, local_tmp, remote_tmp):
+@click.option('--remote-username', default=None, help='Username on remote machine')
+@click.option('--remote-python', default='python2', help='Remote python path')
+def main(local_path, remote_path, local_tmp, remote_tmp, remote_username, remote_python):
     if subprocess.call(['which', 'rsync']) != 0:
         sys.exit(1)
 
@@ -113,7 +115,7 @@ def main(local_path, remote_path, local_tmp, remote_tmp):
 
     observer = make_observer(observed_path, change_consumer)
     observer.start()
-    remote_observer = make_remote_observer('wrling16', 'jarycki', remote_path.split(':')[1], remote_change_consumer)
+    remote_observer = make_remote_observer(remote_path.split(':')[0], remote_username, remote_path.split(':')[1], remote_change_consumer, remote_python)
     remote_observer.start()
 
     try:

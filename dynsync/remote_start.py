@@ -3,13 +3,14 @@ from os.path import expanduser
 from threading import Thread
 
 class RemoteExecutor():
-    def __init__(self, hostname, username):
+    def __init__(self, hostname, username, remote_python):
         self.hostname = hostname
         self.username = username
+        self.remote_python = remote_python
 
     def execute(self, script, params, stdout_consumer):
         self._connect_ssh()
-        stdin, stdout, stderr = self.client.exec_command('/home/jarycki/virtualenv/bin/python2.7 - %s' % params, get_pty=False)
+        stdin, stdout, stderr = self.client.exec_command('%s - %s' % (self.remote_python, params), get_pty=False)
         with open(script, 'r') as f:
             stdin.write(f.read())
         stdin.flush()
@@ -42,8 +43,8 @@ class RemoteExecutor():
         self.client = client
 
 class RemoteObserver():
-    def __init__(self, hostname, username, path, change_consumer):
-        self.remote_executor = RemoteExecutor(hostname, username)
+    def __init__(self, hostname, username, path, change_consumer, remote_python):
+        self.remote_executor = RemoteExecutor(hostname, username, remote_python)
         self.path = path
 
         def consumer_wrapper(line):
@@ -65,5 +66,5 @@ class RemoteObserver():
     def join(self):
         self.thr.join()
 
-def make_remote_observer(hostname, username, path, change_consumer):
-    return RemoteObserver(hostname, username, path, change_consumer)
+def make_remote_observer(hostname, username, path, change_consumer, remote_python):
+    return RemoteObserver(hostname, username, path, change_consumer, remote_python)
