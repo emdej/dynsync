@@ -147,15 +147,15 @@ chmod_files; sleep 2
 verify
 
 echo "remote add files"
-remote_add_files; sleep 2
+remote_add_files; sleep 5
 verify
 
 echo "remote move files"
-remote_move_files; sleep 2
+remote_move_files; sleep 5
 verify
 
 echo "remote remove dirs"
-remote_remove_dir; sleep 2
+remote_remove_dir; sleep 5
 verify
 
 echo "remove files"
