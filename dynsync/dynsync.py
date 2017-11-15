@@ -80,6 +80,7 @@ def main(local_path, remote_path, tmp):
         sys.exit(1)
 
     from get_changes import make_observer
+    from remote_start import make_remote_observer
     observed_path = local_path
 
     event_handler = RSyncEventHandler(local_path, remote_path, tmp)
@@ -87,9 +88,14 @@ def main(local_path, remote_path, tmp):
     def change_consumer(path):
         event_handler.changed_paths.insert(0, path)
 
+    def remote_change_consumer(path):
+        print "remote path change:", path
+
     observer = make_observer(observed_path, change_consumer)
     observer.start()
-#     remote_observer = start_remote_observer(remote_path)
+    remote_observer = make_remote_observer('wrling16', 'jarycki', remote_path.split(':')[1], remote_change_consumer)
+    remote_observer.start()
+
     try:
         while True:
             time.sleep(0.5)
@@ -109,9 +115,9 @@ def main(local_path, remote_path, tmp):
                 event_handler.rsync(changed_paths)
     except KeyboardInterrupt:
         observer.stop()
-#         remote_observer.stop()
+        remote_observer.stop()
     observer.join()
-#     remote_observer.join()
+    remote_observer.join()
 
 if __name__ == '__main__':
     main()
