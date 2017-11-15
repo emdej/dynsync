@@ -26,41 +26,74 @@ if not is_remote():
 #     print stdout.readlines()
 #     stdin, stdout, stderr = client.exec_command('/home/jarycki/virtualenv/bin/python2.7 - /home/emdej/git/ul-phy')
 
-    transport = client.get_transport()
-    channel = transport.open_session()
+#     transport = client.get_transport()
+#     channel = transport.open_session()
 
-    stdin, stdout, stderr = client.exec_command('/usr/bin/python2.7 - /home/emdej/git/ul-phy')
+    #stdin, stdout, stderr = client.exec_command('TERM=xterm /usr/bin/python2.7 - /home/emdej/git/ul-phy', get_pty=True)
+    stdin, stdout, stderr = client.exec_command('python2.7 - /home/emdej/git/ul-phy', get_pty=False)
     
     
     with open('get_changes.py', 'r') as f:
+#         x = '''
+# import signal\n
+# import os
+# import sys
+# def sigint_handler(signal, frame): f = open("/tmp/logfile2", "a"); f.write(str(signal)); f.close()
+# signal.signal(signal.SIGINT, sigint_handler)
+# signal.signal(signal.SIGHUP, sigint_handler)
+# signal.signal(signal.SIGTERM, sigint_handler)
+# signal.signal(signal.SIGPIPE, sigint_handler)
+# import time\nwhile True:\n    print "dupa"\n    time.sleep(1);\n    import sys; sys.stdout.flush()\n'''
+#         stdin.write(x)
+
+#         stdin.write('print "dupa"\n')
 #         x = 
 #         channel.sendall(x)
 #         print x
 #         x = '''import time\nwhile True:\n    print "dupa"\n    time.sleep(1);\n    import sys; sys.stdout.flush()\n'''
         stdin.write(f.read())
+#     stdin.write("\x17")
+#     stdin.write("\x03")
+#     stdin.write("\x04")
     stdin.flush()
-    stdin.close()
+
+#     stdin.close()
     stdin.channel.shutdown_write() #send EOF
 #     import pdb;pdb.set_trace()
     import signal
-    def sigint_handler(signal, frame):
-        print 'Interrupted'
-        import sys; sys.stdout.flush()
-        stdin.channel.close()
-        stdin.channel.transport.close()
-        sys.exit(0)
-    signal.signal(signal.SIGINT, sigint_handler)
+    import time
+#     def sigint_handler(signal, frame):
+#         print 'Interrupted'
+#         import sys; sys.stdout.flush()
+# #         import pdb;pdb.set_trace()
+# #         stdin.channel.send("\x03")
+# #         stdin.write("\x03")
+# #         stdin.flush()
+#         stdin.channel.close()
+#         stdin.channel.transport.close()
+#         sys.exit(0)
+#     signal.signal(signal.SIGINT, sigint_handler)
+#     signal.signal(signal.SIGHUP, sigint_handler)
+#     signal.signal(signal.SIGTERM, sigint_handler)
 
     try:
-        while True:
+#         stdout.channel.settimeout(1)
+        while not stdout.channel.eof_received:
 #             import pdb;pdb.set_trace()
-            line = stdout.readline(4096)
-    #     for line in iter(lambda: stdout.readline(2048), ""):
-#             if line:
-            print line
-    except (KeyboardInterrupt, SystemExit) as e:
-        import pdb;pdb.set_trace()
+#             if stdout.readable():
+            if stdout.channel.recv_ready() or True:
+                line = stdout.readline()
+#                 for line in iter(lambda: stdout.readline(2048), ""):
+#                 for line in stdout.xreadlines():
+                if line:
+                    print line
+                else:
+                    print stdout.channel.eof_received #True
+                    sys.exit(0) #remote end error
+            else:
+                time.sleep(0.5)
+    except (KeyboardInterrupt, SystemExit):
+        pass
+    finally:
         stdin.channel.close()
         stdin.channel.transport.close()
-#     print "ERR:"
-#     print stderr.readlines()

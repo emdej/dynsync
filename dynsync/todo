@@ -2,3 +2,4 @@
 1a. check if watchdog is available
 2. check if my module is installed before trying to upload script
 2a. check protocol version / version
+3. add pytest tests
