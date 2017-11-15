@@ -34,6 +34,8 @@ if __name__ == '__main__':
     try:
         while True:
             sleep(1)
-    except KeyboardInterrupt:
+            stdout.write(" \b")
+            stdout.flush()
+    except (IOError, KeyboardInterrupt, SystemExit):
         observer.stop()
     observer.join()
