@@ -47,7 +47,7 @@ class RemoteObserver():
         self.path = path
 
         def consumer_wrapper(line):
-            stripped = line.strip(' \b')
+            stripped = line.strip(' \b\n')
             if (stripped):
                 change_consumer(stripped)
 

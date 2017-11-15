@@ -4,24 +4,19 @@ import time
 import subprocess
 
 import click
-from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
-from watchdog.observers.api import DEFAULT_OBSERVER_TIMEOUT
-
 
 # OSError: inotify watch limit reached
-
-def _get_what(event):
-    return 'directory' if event.is_directory else 'file'
-
 
 class RSyncEventHandler(FileSystemEventHandler):
     def __init__(self, local_path, remote_path, tmp, ignores=[]):
         self.ignores = ignores
         self.local_path = local_path
         self.remote_path = remote_path
+        self.remote_path_short = remote_path.split(':')[1]
         self.changed_paths = []
         self.tmp = tmp
+        self.local_tmp = "/tmp"
         print "initial synchronization in progress..."
         self.rsync()
         print "done."
@@ -71,6 +66,29 @@ class RSyncEventHandler(FileSystemEventHandler):
             print stdout
             print stderr
 
+    def rev_rsync(self, changes=None):
+        local_changes = [''.join(abs_change.split(self.remote_path_short)[1:]) for abs_change in changes]
+        local_changes.sort()
+        cmd = "rsync --delete -e 'ssh -o StrictHostKeyChecking=no' -avzP --temp-dir={} --include-from=- {} {}".format(self.local_tmp, self.remote_path, self.local_path)
+        with open(os.devnull, 'w') as DEVNULL:
+            try:
+                import shlex
+                p = subprocess.Popen(
+                    shlex.split(cmd),
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    stdin=subprocess.PIPE
+                )
+                input = ''.join(['+ /%s\n' % change for change in local_changes if change])
+                input += '- *\n'
+                print "reverse includes:", input
+                stdout, stderr = p.communicate(input=input.encode('utf8'))
+            except Exception as e:
+                import pdb;pdb.set_trace()
+            p.wait()
+            print stdout
+            print stderr
+
 @click.command()
 @click.argument('local-path')
 @click.argument('remote-path')
@@ -84,12 +102,13 @@ def main(local_path, remote_path, tmp):
     observed_path = local_path
 
     event_handler = RSyncEventHandler(local_path, remote_path, tmp)
+    remote_changed_paths = []
 
     def change_consumer(path):
         event_handler.changed_paths.insert(0, path)
 
     def remote_change_consumer(path):
-        print "remote path change:", path
+        remote_changed_paths.insert(0, path)
 
     observer = make_observer(observed_path, change_consumer)
     observer.start()
@@ -110,9 +129,23 @@ def main(local_path, remote_path, tmp):
                     changed_paths2.insert(0, path[0])
                     path[0] = os.path.dirname(path[0])
             changed_paths = list(set(changed_paths2))
-
             if changed_paths:
                 event_handler.rsync(changed_paths)
+
+            changed_paths = []
+            while remote_changed_paths:
+                changed_paths.append(remote_changed_paths.pop())
+            changed_paths = list(set(changed_paths))
+            changed_paths2 = []
+            for path in changed_paths:
+                path = [path]
+                while path[0] != '/':
+                    changed_paths2.insert(0, path[0])
+                    path[0] = os.path.dirname(path[0])
+            changed_paths = list(set(changed_paths2))
+            if changed_paths:
+                event_handler.rev_rsync(changed_paths)
+
     except KeyboardInterrupt:
         observer.stop()
         remote_observer.stop()
