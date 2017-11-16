@@ -111,7 +111,6 @@ def main(local_path, remote_path, local_tmp, remote_tmp, remote_username, remote
         event_handler.changed_paths.insert(0, path)
 
     def remote_change_consumer(path):
-        print "remote change:", path
         remote_changed_paths.insert(0, path)
 
     observer = make_observer(observed_path, change_consumer)

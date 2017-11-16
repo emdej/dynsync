@@ -126,14 +126,6 @@ echo "make files"
 make_files; sleep 2
 verify
 
-ps ax | grep python
-which python2.7
-ls -l $(which python2.7)
-readlink -f $(which python2.7)
-which python
-ls -l $(which python)
-readlink -f $(which python)
-
 echo "make dirs"
 make_dirs; sleep 2
 verify
@@ -155,15 +147,15 @@ chmod_files; sleep 2
 verify
 
 echo "remote add files"
-remote_add_files; sleep 5
+remote_add_files; sleep 2
 verify
 
 echo "remote move files"
-remote_move_files; sleep 5
+remote_move_files; sleep 2
 verify
 
 echo "remote remove dirs"
-remote_remove_dir; sleep 5
+remote_remove_dir; sleep 2
 verify
 
 echo "remove files"
