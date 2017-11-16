@@ -128,6 +128,11 @@ verify
 
 ps ax | grep python
 which python2.7
+ls -l $(which python2.7)
+readlink -f $(which python2.7)
+which python
+ls -l $(which python)
+readlink -f $(which python)
 
 echo "make dirs"
 make_dirs; sleep 2
