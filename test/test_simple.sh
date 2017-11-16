@@ -126,6 +126,8 @@ echo "make files"
 make_files; sleep 2
 verify
 
+ps ax | grep python
+
 echo "make dirs"
 make_dirs; sleep 2
 verify
