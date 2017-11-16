@@ -127,6 +127,7 @@ make_files; sleep 2
 verify
 
 ps ax | grep python
+which python2.7
 
 echo "make dirs"
 make_dirs; sleep 2
