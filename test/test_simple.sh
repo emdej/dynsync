@@ -8,7 +8,7 @@ TESTDIR_R=$(mktemp -d)
 set -e
 
 cd ${DYNSYNCDIR}
-python2.7 dynsync.py ${TESTDIR_L}/ localhost:${TESTDIR_R}/ --remote-username=${USER} &
+python2.7 dynsync.py ${TESTDIR_L}/ localhost:${TESTDIR_R}/ --remote-username=${USER} --remote-python=$(which python) &
 PID=$!
 
 function cleanup
@@ -147,15 +147,15 @@ chmod_files; sleep 2
 verify
 
 echo "remote add files"
-remote_add_files; sleep 2
+remote_add_files; sleep 3
 verify
 
 echo "remote move files"
-remote_move_files; sleep 2
+remote_move_files; sleep 3
 verify
 
 echo "remote remove dirs"
-remote_remove_dir; sleep 2
+remote_remove_dir; sleep 3
 verify
 
 echo "remove files"
