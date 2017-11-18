@@ -5,4 +5,4 @@
 [![Build Status](https://api.travis-ci.org/emdej/dynsync.svg?branch=master)](https://travis-ci.org/emdej/dynsync)
 
 # dynsync
-Dynamic (inotify) synchronization tool.
+Dynamic (inotify) two-way synchronization tool.
