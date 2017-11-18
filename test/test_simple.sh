@@ -8,7 +8,7 @@ TESTDIR_R=$(mktemp -d)
 set -e
 
 cd ${DYNSYNCDIR}
-python2.7 dynsync.py ${TESTDIR_L}/ localhost:${TESTDIR_R}/ --remote-username=${USER} --remote-python=$(which python) &
+dynsync ${TESTDIR_L}/ localhost:${TESTDIR_R}/ --remote-username=${USER} --remote-python=$(which python) &
 PID=$!
 
 function cleanup
