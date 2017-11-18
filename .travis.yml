@@ -21,7 +21,7 @@ before_install:
   - cat ${HOME}/.ssh/id_rsa.pub >> ${HOME}/.ssh/authorized_keys
 
 install:
-  - pip2 install click watchdog paramiko
+  - pip install -r requirements.txt
 
 script:
   - test/test_simple.sh
