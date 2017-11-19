@@ -6,7 +6,6 @@ import subprocess
 import click
 from watchdog.events import FileSystemEventHandler
 
-# OSError: inotify watch limit reached
 
 class RSyncEventHandler(FileSystemEventHandler):
     def __init__(self, local_path, remote_path, local_tmp, remote_tmp, ignores=[]):
@@ -39,55 +38,56 @@ class RSyncEventHandler(FileSystemEventHandler):
         self.changed_paths.insert(0, event.src_path)
 
     def rsync(self, changes=None):
-        opts = []
         if changes:
             local_changes = [''.join(abs_change.split(self.local_path)[1:]) for abs_change in changes]
             local_changes.sort()
-            cmd = "rsync --delete -e 'ssh -o StrictHostKeyChecking=no' -avzP --temp-dir={} --include-from=- {} {}".format(self.remote_tmp, self.local_path, self.remote_path)
+            cmd = "rsync --delete -e 'ssh -o StrictHostKeyChecking=no' -avzP --temp-dir={} --include-from=- {} {}"
+            cmd = cmd.format(self.remote_tmp, self.local_path, self.remote_path)
         else:
             local_changes = []
-            cmd = "rsync --delete -e 'ssh -o StrictHostKeyChecking=no' -avzP --temp-dir={} {} {}".format(self.remote_tmp, self.local_path, self.remote_path)
-        with open(os.devnull, 'w') as DEVNULL:
-            try:
-                import shlex
-                p = subprocess.Popen(
-                    shlex.split(cmd),
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
-                    stdin=subprocess.PIPE
-                )
-                input = ''.join(['+ /%s\n' % change for change in local_changes if change])
-                input += '- *\n'
-                print "includes:", input
-                stdout, stderr = p.communicate(input=input.encode('utf8'))
-            except Exception as e:
-                import pdb;pdb.set_trace()
-            p.wait()
-            print stdout
-            print stderr
+            cmd = "rsync --delete -e 'ssh -o StrictHostKeyChecking=no' -avzP --temp-dir={} {} {}"
+            cmd = cmd.format(self.remote_tmp, self.local_path, self.remote_path)
+        try:
+            import shlex
+            p = subprocess.Popen(
+                shlex.split(cmd),
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                stdin=subprocess.PIPE
+            )
+            input = ''.join(['+ /%s\n' % change for change in local_changes if change])
+            input += '- *\n'
+            print "includes:", input
+            stdout, stderr = p.communicate(input=input.encode('utf8'))
+        except Exception as e:
+            print e
+        p.wait()
+        print stdout
+        print stderr
 
     def rev_rsync(self, changes=None):
         local_changes = [''.join(abs_change.split(self.remote_path_short)[1:]) for abs_change in changes]
         local_changes.sort()
-        cmd = "rsync --delete -e 'ssh -o StrictHostKeyChecking=no' -avzP --temp-dir={} --include-from=- {} {}".format(self.local_tmp, self.remote_path, self.local_path)
-        with open(os.devnull, 'w') as DEVNULL:
-            try:
-                import shlex
-                p = subprocess.Popen(
-                    shlex.split(cmd),
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
-                    stdin=subprocess.PIPE
-                )
-                input = ''.join(['+ /%s\n' % change for change in local_changes if change])
-                input += '- *\n'
-                print "reverse includes:", input
-                stdout, stderr = p.communicate(input=input.encode('utf8'))
-            except Exception as e:
-                import pdb;pdb.set_trace()
-            p.wait()
-            print stdout
-            print stderr
+        cmd = "rsync --delete -e 'ssh -o StrictHostKeyChecking=no' -avzP --temp-dir={} --include-from=- {} {}"
+        cmd = cmd.format(self.local_tmp, self.remote_path, self.local_path)
+        try:
+            import shlex
+            p = subprocess.Popen(
+                shlex.split(cmd),
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                stdin=subprocess.PIPE
+            )
+            input = ''.join(['+ /%s\n' % change for change in local_changes if change])
+            input += '- *\n'
+            print "reverse includes:", input
+            stdout, stderr = p.communicate(input=input.encode('utf8'))
+        except Exception as e:
+            print e
+        p.wait()
+        print stdout
+        print stderr
+
 
 @click.command()
 @click.argument('local-path')
@@ -115,7 +115,8 @@ def main(local_path, remote_path, local_tmp, remote_tmp, remote_username, remote
 
     observer = make_observer(observed_path, change_consumer)
     observer.start()
-    remote_observer = make_remote_observer(remote_path.split(':')[0], remote_username, remote_path.split(':')[1], remote_change_consumer, remote_python)
+    remote_observer = make_remote_observer(remote_path.split(':')[0], remote_username,
+                                           remote_path.split(':')[1], remote_change_consumer, remote_python)
     remote_observer.start()
 
     try:
@@ -154,6 +155,7 @@ def main(local_path, remote_path, local_tmp, remote_tmp, remote_username, remote
         remote_observer.stop()
     observer.join()
     remote_observer.join()
+
 
 if __name__ == '__main__':
     main()

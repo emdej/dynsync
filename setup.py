@@ -7,7 +7,7 @@ setup(
     name='dynsync',
     version='0.0.1',
     description='Dynamic (inotify) two-way synchronization tool.',
-    author = 'Marek Jarycki',
+    author='Marek Jarycki',
     url='http://github.com/emdej/dynsync',
     keywords='sync rsync inotify auto file synchronization two-way',
     platforms=['linux'],

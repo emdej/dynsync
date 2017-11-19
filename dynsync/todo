@@ -7,3 +7,4 @@
 5. try use common Observer api
 6. make_observer can be work with both local and remote
 7. add clasifiers to setup.py
+8. # OSError: inotify watch limit reached

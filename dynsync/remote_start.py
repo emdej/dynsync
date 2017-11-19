@@ -2,6 +2,7 @@ import paramiko
 from os.path import expanduser
 from threading import Thread
 
+
 class RemoteExecutor():
     def __init__(self, hostname, username, remote_python):
         self.hostname = hostname
@@ -14,7 +15,7 @@ class RemoteExecutor():
         with open(script, 'r') as f:
             stdin.write(f.read())
         stdin.flush()
-        stdin.channel.shutdown_write() #send EOF
+        stdin.channel.shutdown_write()  # send EOF
         try:
             while not stdout.channel.closed:
                 line = stdout.readline()
@@ -42,6 +43,7 @@ class RemoteExecutor():
         client.connect(hostname, username=self.username)
         self.client = client
 
+
 class RemoteObserver():
     def __init__(self, hostname, username, path, change_consumer, remote_python):
         self.remote_executor = RemoteExecutor(hostname, username, remote_python)
@@ -65,6 +67,7 @@ class RemoteObserver():
 
     def join(self):
         self.thr.join()
+
 
 def make_remote_observer(hostname, username, path, change_consumer, remote_python):
     return RemoteObserver(hostname, username, path, change_consumer, remote_python)
