@@ -89,6 +89,14 @@ class RSyncEventHandler(FileSystemEventHandler):
         print stderr
 
 
+_running = [True]
+
+
+def stop():
+    print "stopping"
+    _running[0] = False
+
+
 @click.command()
 @click.argument('local-path')
 @click.argument('remote-path')
@@ -97,6 +105,8 @@ class RSyncEventHandler(FileSystemEventHandler):
 @click.option('--remote-username', default=None, help='Username on remote machine')
 @click.option('--remote-python', default='python2', help='Remote python path')
 def main(local_path, remote_path, local_tmp, remote_tmp, remote_username, remote_python):
+    print "main."
+
     if subprocess.call(['which', 'rsync']) != 0:
         sys.exit(1)
 
@@ -120,7 +130,9 @@ def main(local_path, remote_path, local_tmp, remote_tmp, remote_username, remote
     remote_observer.start()
 
     try:
-        while True:
+        print "pre running"
+        while _running[0]:
+            print "in running"
             time.sleep(0.5)
             changed_paths = []
             while event_handler.changed_paths:
@@ -149,8 +161,13 @@ def main(local_path, remote_path, local_tmp, remote_tmp, remote_username, remote
             changed_paths = list(set(changed_paths2))
             if changed_paths:
                 event_handler.rev_rsync(changed_paths)
+        print "stopped?"
 
     except KeyboardInterrupt:
+        observer.stop()
+        remote_observer.stop()
+    finally:
+        print "finally"
         observer.stop()
         remote_observer.stop()
     observer.join()
