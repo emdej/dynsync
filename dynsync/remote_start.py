@@ -1,6 +1,7 @@
 import paramiko
 from os.path import expanduser
 from threading import Thread
+from os.path import dirname, join
 
 
 class RemoteExecutor():
@@ -58,7 +59,8 @@ class RemoteObserver():
 
     def start(self):
         def runner():
-            self.remote_executor.execute("get_changes.py", self.path, stdout_consumer=self.change_consumer)
+            script_path = join(dirname(__file__), "get_changes.py")
+            self.remote_executor.execute(script_path, self.path, stdout_consumer=self.change_consumer)
         self.thr = Thread(target=runner)
         self.thr.start()
 

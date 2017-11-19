@@ -103,8 +103,8 @@ function verify
     tar --sort=name -cm -f - -C ${TESTDIR_L} . | tar -tv
     echo "remote:"
     tar --sort=name -cm -f - -C ${TESTDIR_R} . | tar -tv
-    SL=$(tar --sort=name -cm -f - -C ${TESTDIR_L} . | sha256sum | cut -d' ' -f1)
-    SR=$(tar --sort=name -cm -f - -C ${TESTDIR_R} . | sha256sum | cut -d' ' -f1)
+    SL=$(tar --sort=name -cm --owner=0 --group=0 -f - -C ${TESTDIR_L} . | sha256sum | cut -d' ' -f1)
+    SR=$(tar --sort=name -cm --owner=0 --group=0 -f - -C ${TESTDIR_R} . | sha256sum | cut -d' ' -f1)
     if [ "${SL}" == "${SR}" ]
     then
         echo "verification: OK"

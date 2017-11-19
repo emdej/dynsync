@@ -149,8 +149,9 @@ def main(local_path, remote_path, local_tmp, remote_tmp, remote_username, remote
             changed_paths = list(set(changed_paths2))
             if changed_paths:
                 event_handler.rev_rsync(changed_paths)
-
-    except KeyboardInterrupt:
+    except KeyboardInterrupt, SystemExit:
+        pass
+    finally:
         observer.stop()
         remote_observer.stop()
     observer.join()
