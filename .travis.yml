@@ -21,7 +21,7 @@ before_install:
   - cat ${HOME}/.ssh/id_rsa.pub >> ${HOME}/.ssh/authorized_keys
 
 script:
-  - test/test_simple.sh
+  - tox -v
 
 notifications:
   email:
