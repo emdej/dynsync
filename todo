@@ -1,0 +1,7 @@
+- check if watchdog is available on remote machine
+- add pytest tests
+- try use common Observer api
+- make_observer can be work with both local and remote
+- add clasifiers to setup.py
+- OSError: inotify watch limit reached
+- fix overwriting new local changes by previous local changes by remote update
