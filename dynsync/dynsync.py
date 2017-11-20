@@ -100,6 +100,15 @@ def main(local_path, remote_path, local_tmp, remote_tmp, remote_username, remote
     if subprocess.call(['which', 'rsync']) != 0:
         sys.exit(1)
 
+    def normalize_dir_path(path):
+        if not path.endswith('/'):
+            return path + '/'
+        else:
+            return path
+
+    local_path = normalize_dir_path(local_path)
+    remote_path = normalize_dir_path(remote_path)
+
     from get_changes import make_observer
     from remote_start import make_remote_observer
     observed_path = local_path
