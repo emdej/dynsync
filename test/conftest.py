@@ -15,8 +15,7 @@ def remote_dir(tmpdir_factory):
 @pytest.yield_fixture
 def dynsync(local_dir, remote_dir):
     try:
-        p = subprocess.Popen(["dynsync", local_dir, "localhost:"+remote_dir],
-                             stdout=subprocess.PIPE)
+        p = subprocess.Popen(["dynsync", local_dir, "localhost:"+remote_dir])
         yield p
     finally:
         p.terminate()
