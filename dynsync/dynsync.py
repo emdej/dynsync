@@ -89,34 +89,37 @@ class RSyncEventHandler(FileSystemEventHandler):
         print stderr
 
 
-import time
-class ChangeInfo:
+class ChangeFirewall:
+    LOCAL = 1
+    REMOTE = 2
+
     def __init__(self, lp, rp):
-        self.locals = {}
-        self.remotes = {}
+        self.changes = {
+                ChangeFirewall.LOCAL: {},
+                ChangeFirewall.REMOTE: {}
+            }
         self.lp = lp
         self.rp = rp
-    def verifyL(self, path):
-        path = ''.join(path.split(self.lp)[1:])
-        self.cleanup()
-        if path in self.remotes:
+
+    def verify(self, path, kind):
+        if (kind == ChangeFirewall.REMOTE):
+            path = ''.join(path.split(self.rp)[1:])
+        else:
+            path = ''.join(path.split(self.lp)[1:])
+        self._cleanup()
+        reverse_kind = (kind == ChangeFirewall.REMOTE) and ChangeFirewall.LOCAL or ChangeFirewall.REMOTE
+        if path in self.changes[reverse_kind]:
             return False
-        self.locals.update({path: time.time()})
+        self.changes[kind].update({path: time.time()})
         return True
-    def verifyR(self, path):
-        path = ''.join(path.split(self.rp)[1:])
-        self.cleanup()
-        if path in self.locals:
-            return False
-        self.remotes.update({path: time.time()})
-        return True
-    def cleanup(self):
-        for key,value in self.remotes.items():
-            if value < (time.time() - 5):
-                del self.remotes[key]
-        for key,value in self.locals.items():
-            if value < (time.time() - 5):
-                del self.locals[key]
+
+    def _cleanup(self):
+        for key in self.changes:
+            changes = self.changes[key]
+            for (key, value) in changes.items():
+                if value < (time.time() - 5):
+                    del changes[key]
+
 
 @click.command()
 @click.argument('local-path')
@@ -145,14 +148,14 @@ def main(local_path, remote_path, local_tmp, remote_tmp, remote_username, remote
     event_handler = RSyncEventHandler(local_path, remote_path, local_tmp, remote_tmp)
     remote_changed_paths = []
 
-    ci = ChangeInfo(local_path, remote_path.split(':')[1])
+    ci = ChangeFirewall(local_path, remote_path.split(':')[1])
 
     def change_consumer(path):
-        if ci.verifyL(path):
+        if ci.verify(path, ChangeFirewall.LOCAL):
             event_handler.changed_paths.insert(0, path)
 
     def remote_change_consumer(path):
-        if ci.verifyR(path):
+        if ci.verify(path, ChangeFirewall.REMOTE):
             remote_changed_paths.insert(0, path)
 
     observer = make_observer(observed_path, change_consumer)
