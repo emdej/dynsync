@@ -89,6 +89,35 @@ class RSyncEventHandler(FileSystemEventHandler):
         print stderr
 
 
+import time
+class ChangeInfo:
+    def __init__(self, lp, rp):
+        self.locals = {}
+        self.remotes = {}
+        self.lp = lp
+        self.rp = rp
+    def verifyL(self, path):
+        path = ''.join(path.split(self.lp)[1:])
+        self.cleanup()
+        if path in self.remotes:
+            return False
+        self.locals.update({path: time.time()})
+        return True
+    def verifyR(self, path):
+        path = ''.join(path.split(self.rp)[1:])
+        self.cleanup()
+        if path in self.locals:
+            return False
+        self.remotes.update({path: time.time()})
+        return True
+    def cleanup(self):
+        for key,value in self.remotes.items():
+            if value < (time.time() - 5):
+                del self.remotes[key]
+        for key,value in self.locals.items():
+            if value < (time.time() - 5):
+                del self.locals[key]
+
 @click.command()
 @click.argument('local-path')
 @click.argument('remote-path')
@@ -116,11 +145,15 @@ def main(local_path, remote_path, local_tmp, remote_tmp, remote_username, remote
     event_handler = RSyncEventHandler(local_path, remote_path, local_tmp, remote_tmp)
     remote_changed_paths = []
 
+    ci = ChangeInfo(local_path, remote_path.split(':')[1])
+
     def change_consumer(path):
-        event_handler.changed_paths.insert(0, path)
+        if ci.verifyL(path):
+            event_handler.changed_paths.insert(0, path)
 
     def remote_change_consumer(path):
-        remote_changed_paths.insert(0, path)
+        if ci.verifyR(path):
+            remote_changed_paths.insert(0, path)
 
     observer = make_observer(observed_path, change_consumer)
     observer.start()
