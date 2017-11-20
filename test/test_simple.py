@@ -1,6 +1,6 @@
 import subprocess
 from os.path import dirname, join
-from dir_compare import dirs_equal
+from dir_compare import dirs_equal, wait_dirs_equal
 
 
 def test_simple():
@@ -13,3 +13,10 @@ def test_complex_shell():
 
 def test_simple_py(dynsync, local_dir, remote_dir):
     assert dirs_equal(local_dir, remote_dir)
+
+
+def test_simple_sync(dynsync, local_dir, remote_dir):
+    wait_dirs_equal(local_dir, remote_dir)
+    with open(join(local_dir, "f1"), 'w') as f:
+        f.write("a")
+    wait_dirs_equal(local_dir, remote_dir)
