@@ -60,8 +60,6 @@ class RSyncEventHandler(FileSystemEventHandler):
         except Exception as e:
             print e
         p.wait()
-        print stdout
-        print stderr
 
     def rev_rsync(self, changes=None):
         local_changes = [''.join(abs_change.split(self.remote_path_short)[1:]) for abs_change in changes]
