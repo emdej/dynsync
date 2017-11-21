@@ -80,8 +80,6 @@ class RSyncEventHandler(FileSystemEventHandler):
         except Exception as e:
             print e
         p.wait()
-        print stdout
-        print stderr
 
 
 class ChangeFirewall:
