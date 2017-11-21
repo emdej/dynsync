@@ -2,6 +2,7 @@ import os
 import sys
 import time
 import subprocess
+import threading
 
 import click
 from watchdog.events import FileSystemEventHandler
@@ -51,13 +52,10 @@ class RSyncEventHandler(FileSystemEventHandler):
             import shlex
             p = subprocess.Popen(
                 shlex.split(cmd),
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
                 stdin=subprocess.PIPE
             )
             input = ''.join(['+ /%s\n' % change for change in local_changes if change])
             input += '- *\n'
-            print "includes:", input
             stdout, stderr = p.communicate(input=input.encode('utf8'))
         except Exception as e:
             print e
@@ -74,13 +72,10 @@ class RSyncEventHandler(FileSystemEventHandler):
             import shlex
             p = subprocess.Popen(
                 shlex.split(cmd),
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
                 stdin=subprocess.PIPE
             )
             input = ''.join(['+ /%s\n' % change for change in local_changes if change])
             input += '- *\n'
-            print "reverse includes:", input
             stdout, stderr = p.communicate(input=input.encode('utf8'))
         except Exception as e:
             print e
@@ -100,18 +95,20 @@ class ChangeFirewall:
             }
         self.lp = lp
         self.rp = rp
+        self.lock = threading.Lock()
 
     def verify(self, path, kind):
-        if (kind == ChangeFirewall.REMOTE):
-            path = ''.join(path.split(self.rp)[1:])
-        else:
-            path = ''.join(path.split(self.lp)[1:])
-        self._cleanup()
-        reverse_kind = (kind == ChangeFirewall.REMOTE) and ChangeFirewall.LOCAL or ChangeFirewall.REMOTE
-        if path in self.changes[reverse_kind]:
-            return False
-        self.changes[kind].update({path: time.time()})
-        return True
+        with self.lock:
+            if (kind == ChangeFirewall.REMOTE):
+                path = ''.join(path.split(self.rp)[1:])
+            else:
+                path = ''.join(path.split(self.lp)[1:])
+            self._cleanup()
+            reverse_kind = (kind == ChangeFirewall.REMOTE) and ChangeFirewall.LOCAL or ChangeFirewall.REMOTE
+            if path in self.changes[reverse_kind]:
+                return False
+            self.changes[kind].update({path: time.time()})
+            return True
 
     def _cleanup(self):
         for key in self.changes:
