@@ -14,6 +14,7 @@ setup(
     license='GPLv2',
     install_requires=reqs,
     packages=find_packages(),
+    package_files=[("", ["requirementx.txt"])],
     entry_points={
         'console_scripts': [
             'dynsync=dynsync.dynsync:main',

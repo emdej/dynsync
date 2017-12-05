@@ -13,7 +13,7 @@ def dirs_equal(dir1, dir2):
     return s1 == s2
 
 
-def wait_dirs_equal(dir1, dir2, timeout=2):
+def wait_dirs_equal(dir1, dir2, timeout=5):
     deadline = time.time() + timeout
     while time.time() < deadline:
         if dirs_equal(dir1, dir2):

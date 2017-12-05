@@ -39,6 +39,7 @@ class RSyncEventHandler(FileSystemEventHandler):
         self.changed_paths.insert(0, event.src_path)
 
     def rsync(self, changes=None):
+        print "rsync from local"
         if changes:
             local_changes = [''.join(abs_change.split(self.local_path)[1:]) for abs_change in changes]
             local_changes.sort()
@@ -62,6 +63,7 @@ class RSyncEventHandler(FileSystemEventHandler):
         p.wait()
 
     def rev_rsync(self, changes=None):
+        print "rsync from remote"
         local_changes = [''.join(abs_change.split(self.remote_path_short)[1:]) for abs_change in changes]
         local_changes.sort()
         cmd = "rsync --delete -e 'ssh -o StrictHostKeyChecking=no' -avzP --temp-dir={} --include-from=- {} {}"
@@ -130,7 +132,6 @@ def main(local_path, remote_path, local_tmp, remote_tmp, remote_username, remote
             return path + '/'
         else:
             return path
-
     local_path = normalize_dir_path(local_path)
     remote_path = normalize_dir_path(remote_path)
 
