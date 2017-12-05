@@ -1,0 +1,4 @@
+#!/bin/bash
+
+ROOTDIR=$(dirname $0)
+tox -v -e py27 --notest && source ${ROOTDIR}/.tox/py27/bin/activate && cd ${ROOTDIR}/test
