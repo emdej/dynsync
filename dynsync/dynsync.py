@@ -84,13 +84,14 @@ class ChangeFirewall:
     LOCAL = 1
     REMOTE = 2
 
-    def __init__(self, lp, rp):
+    def __init__(self, lp, rp, ignores):
         self.changes = {
                 ChangeFirewall.LOCAL: {},
                 ChangeFirewall.REMOTE: {}
             }
         self.lp = lp
         self.rp = rp
+        self.ignores = ignores
         self.lock = threading.Lock()
         self.last_cleanup_time = 0
 
@@ -100,6 +101,8 @@ class ChangeFirewall:
                 path = ''.join(path.split(self.rp)[1:])
             else:
                 path = ''.join(path.split(self.lp)[1:])
+            if path in self.ignores:
+                return False
             self._cleanup()
             reverse_kind = (kind == ChangeFirewall.REMOTE) and ChangeFirewall.LOCAL or ChangeFirewall.REMOTE
             if path in self.changes[reverse_kind]:
@@ -124,7 +127,8 @@ class ChangeFirewall:
 @click.option('--remote-tmp', default='/tmp', help='Remote dir to store tmp files (defaults to /tmp)')
 @click.option('--remote-username', default=None, help='Username on remote machine')
 @click.option('--remote-python', default='python2', help='Remote python path')
-def main(local_path, remote_path, local_tmp, remote_tmp, remote_username, remote_python):
+@click.option('--ignore', default='', multiple=True, help='Path to ignore')
+def main(local_path, remote_path, local_tmp, remote_tmp, remote_username, remote_python, ignore):
     if subprocess.call(['which', 'rsync']) != 0:
         sys.exit(1)
 
@@ -144,7 +148,7 @@ def main(local_path, remote_path, local_tmp, remote_tmp, remote_username, remote
     event_handler = RSyncEventHandler(local_path, remote_path, local_tmp, remote_tmp)
     remote_changed_paths = []
 
-    ci = ChangeFirewall(local_path, remote_path.split(':')[1])
+    ci = ChangeFirewall(local_path, remote_path.split(':')[1], ignore)
 
     def change_consumer(path):
         if ci.verify(path, ChangeFirewall.LOCAL):

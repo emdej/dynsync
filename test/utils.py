@@ -3,7 +3,7 @@ import os
 from os.path import join
 
 
-def writefile(filepath, byte_count, delay=0.1):
+def writefile(filepath, byte_count=1, delay=0.1):
     if isinstance(filepath, tuple):
         filepath = join(*filepath)
     for _ in range(byte_count):

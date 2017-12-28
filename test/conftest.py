@@ -28,8 +28,8 @@ def process_stopped(pid):
 @pytest.yield_fixture
 def dynsync(local_dir, remote_dir):
     try:
-        writefile((local_dir, "initial_file"), byte_count=1)
-        p = subprocess.Popen(["dynsync", local_dir, "localhost:"+remote_dir])
+        writefile((local_dir, "initial_file"))
+        p = subprocess.Popen(["dynsync", local_dir, "localhost:"+remote_dir, "--ignore=ignored_file"])
 
         def pred():
             if not p.pid:
