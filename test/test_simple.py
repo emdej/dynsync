@@ -22,6 +22,14 @@ def test_simple_sync(dynsync, local_dir, remote_dir):
     wait_dirs_equal(local_dir, remote_dir)
 
 
+def test_simple_sync_remote(dynsync, local_dir, remote_dir):
+    import time
+    time.sleep(1)
+    # use: pgrep -f '[-] /tmp/pytest-of-emdej/pytest-151/remote0'
+    initialize(remote_dir)
+    wait_dirs_equal(local_dir, remote_dir, timeout=5)
+
+
 def test_mkdir_mkfile(dynsync, local_dir, remote_dir):
     initialize(local_dir)
     wait_dirs_equal(local_dir, remote_dir)
