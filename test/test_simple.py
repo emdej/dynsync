@@ -53,4 +53,4 @@ def test_ignore_local(dynsync, local_dir, remote_dir):
 def test_ignore_remote(dynsync, local_dir, remote_dir):
     writefile((remote_dir, "ignored_file"))
     with pytest.raises(NotEqualException):
-        wait_dirs_equal(local_dir, remote_dir)
+        wait_dirs_equal(local_dir, remote_dir, timeout=5)
