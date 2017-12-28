@@ -120,7 +120,7 @@ class ChangeFirewall:
 @click.command()
 @click.argument('local-path')
 @click.argument('remote-path')
-@click.option('--local-tmp', default='/tmp', help='Local rir to store tmp files (defaults to /tmp)')
+@click.option('--local-tmp', default='/tmp', help='Local dir to store tmp files (defaults to /tmp)')
 @click.option('--remote-tmp', default='/tmp', help='Remote dir to store tmp files (defaults to /tmp)')
 @click.option('--remote-username', default=None, help='Username on remote machine')
 @click.option('--remote-python', default='python2', help='Remote python path')
