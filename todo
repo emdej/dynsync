@@ -3,3 +3,4 @@
 - make_observer can be work with both local and remote
 - add clasifiers to setup.py
 - OSError: inotify watch limit reached
+- add ignore options
