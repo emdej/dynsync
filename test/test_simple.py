@@ -18,8 +18,6 @@ def test_simple_py(dynsync, local_dir, remote_dir):
 
 def test_simple_sync(dynsync, local_dir, remote_dir):
     initialize(local_dir)
-    with open(join(local_dir, "f1"), 'w') as f:
-        f.write("a")
     wait_dirs_equal(local_dir, remote_dir)
 
 
