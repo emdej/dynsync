@@ -1,5 +1,5 @@
 import subprocess
-import time
+from utils import wait_for
 
 
 class NotEqualException(Exception):
@@ -14,9 +14,4 @@ def dirs_equal(dir1, dir2):
 
 
 def wait_dirs_equal(dir1, dir2, timeout=2):
-    deadline = time.time() + timeout
-    while time.time() < deadline:
-        if dirs_equal(dir1, dir2):
-            return
-        time.sleep(0.1)
-    raise NotEqualException()
+    wait_for(lambda: dirs_equal(dir1, dir2), timeout=timeout, ex_type=NotEqualException)
