@@ -92,6 +92,7 @@ class ChangeFirewall:
         self.lp = lp
         self.rp = rp
         self.lock = threading.Lock()
+        self.last_cleanup_time = 0
 
     def verify(self, path, kind):
         with self.lock:
@@ -107,11 +108,13 @@ class ChangeFirewall:
             return True
 
     def _cleanup(self):
-        for key in self.changes:
-            changes = self.changes[key]
-            for (key, value) in changes.items():
-                if value < (time.time() - 5):
-                    del changes[key]
+        if time.time() - self.last_cleanup_time > 1:
+            self.last_cleanup_time = time.time()
+            for key in self.changes:
+                changes = self.changes[key]
+                for (key, value) in changes.items():
+                    if value < (time.time() - 5):
+                        del changes[key]
 
 
 @click.command()
