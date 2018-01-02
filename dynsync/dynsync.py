@@ -101,7 +101,7 @@ class ChangeFirewall:
                 path = ''.join(path.split(self.rp)[1:])
             else:
                 path = ''.join(path.split(self.lp)[1:])
-            if path in self.ignores:
+            if any([path.startswith(x) for x in self.ignores]):
                 return False
             self._cleanup()
             reverse_kind = (kind == ChangeFirewall.REMOTE) and ChangeFirewall.LOCAL or ChangeFirewall.REMOTE
