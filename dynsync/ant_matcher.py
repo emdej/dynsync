@@ -1,5 +1,6 @@
 import re
 
+
 def _ant_to_regex(pattern):
     ans_parts = []
     if not pattern.startswith('/'):
@@ -14,8 +15,8 @@ def _ant_to_regex(pattern):
             else:
                 ans_part += x
         ans_parts.append(ans_part)
-    return '(/.*)?'.join(ans_parts).replace('//','/')
+    return '(/.*)?'.join(ans_parts).replace('//', '/')
+
 
 def ant_match(path, pattern):
     return re.match(_ant_to_regex(pattern), path) is not None
-
