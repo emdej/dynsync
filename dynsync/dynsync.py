@@ -6,6 +6,7 @@ import threading
 
 import click
 from watchdog.events import FileSystemEventHandler
+from ant_matcher import ant_match
 
 
 class RSyncEventHandler(FileSystemEventHandler):
@@ -101,7 +102,7 @@ class ChangeFirewall:
                 path = ''.join(path.split(self.rp)[1:])
             else:
                 path = ''.join(path.split(self.lp)[1:])
-            if any([path.startswith(x) for x in self.ignores]):
+            if any([ant_match(path, x) for x in self.ignores]):
                 return False
             self._cleanup()
             reverse_kind = (kind == ChangeFirewall.REMOTE) and ChangeFirewall.LOCAL or ChangeFirewall.REMOTE
