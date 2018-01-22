@@ -13,7 +13,7 @@ def _ant_to_regex(pattern):
             elif x == '?':
                 ans_part += '[^/]'
             else:
-                ans_part += x
+                ans_part += re.escape(x)
         ans_parts.append(ans_part)
     return '(/.*)?'.join(ans_parts).replace('//', '/')
 
