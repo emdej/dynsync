@@ -99,9 +99,9 @@ class ChangeFirewall:
     def verify(self, path, kind):
         with self.lock:
             if (kind == ChangeFirewall.REMOTE):
-                path = ''.join(path.split(self.rp)[1:])
+                path = '/' + ''.join(path.split(self.rp)[1:])
             else:
-                path = ''.join(path.split(self.lp)[1:])
+                path = '/' + ''.join(path.split(self.lp)[1:])
             if any([ant_match(path, x) for x in self.ignores]):
                 return False
             self._cleanup()

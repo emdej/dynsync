@@ -13,5 +13,5 @@ def dirs_equal(dir1, dir2):
     return s1 == s2
 
 
-def wait_dirs_equal(dir1, dir2, timeout=2):
+def wait_dirs_equal(dir1, dir2, timeout=5):
     wait_for(lambda: dirs_equal(dir1, dir2), timeout=timeout, ex_type=NotEqualException)
