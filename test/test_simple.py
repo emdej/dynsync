@@ -22,7 +22,6 @@ def test_simple_sync(dynsync, local_dir, remote_dir):
     wait_dirs_equal(local_dir, remote_dir)
 
 
-@pytest.mark.skip("failing...")
 def test_simple_sync_remote(dynsync, local_dir, remote_dir):
     import time
     time.sleep(1)
