@@ -38,19 +38,24 @@ def test_mkdir_mkfile(dynsync, local_dir, remote_dir):
 
 
 def test_remote_feedback_not_overwriting_local_changes(dynsync, local_dir, remote_dir):
+    import time
+    time.sleep(1)
     filepath = join(local_dir, "file")
     writefile(filepath, byte_count=100)
     wait_dirs_equal(local_dir, remote_dir)
     assert getsize(filepath) == 100
 
-
+@pytest.mark.parametrize('ignored', [["ignored_file"]])
 def test_ignore_local(dynsync, local_dir, remote_dir):
     writefile((local_dir, "ignored_file"))
     with pytest.raises(NotEqualException):
         wait_dirs_equal(local_dir, remote_dir)
 
 
+@pytest.mark.parametrize('ignored', [["ignored_file"]])
 def test_ignore_remote(dynsync, local_dir, remote_dir):
+    import time
+    time.sleep(1)
     writefile((remote_dir, "ignored_file"))
     with pytest.raises(NotEqualException):
-        wait_dirs_equal(local_dir, remote_dir, timeout=5)
+        wait_dirs_equal(local_dir, remote_dir)
